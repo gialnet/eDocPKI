@@ -1,0 +1,339 @@
+--------------------------------------------------------
+-- Certification_Authorities
+--------------------------------------------------------
+
+DROP TABLE CERTIFICATION_AUTHORITIES cascade constraints;
+DROP SEQUENCE CA_SEQUENCE;
+
+CREATE SEQUENCE  CA_SEQUENCE  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE;
+
+CREATE TABLE CERTIFICATION_AUTHORITIES (
+	ID NUMBER, 
+	NAME VARCHAR2(50 BYTE), 
+	CANONICAL_NAME VARCHAR2(250 BYTE), 
+	CERTIFICATE BLOB, 
+	NOT_BEFORE DATE, 
+	NOT_AFTER DATE, 
+	SERIAL_NUMBER VARCHAR2(100 BYTE), 
+	METHOD VARCHAR2(4 BYTE), 
+	OCSP_URL VARCHAR2(250 BYTE), 
+	COMMENTS VARCHAR2(512 BYTE)
+);
+
+ALTER TABLE CERTIFICATION_AUTHORITIES ADD CONSTRAINT CERTIFICATION_AUTHORITIES_PK PRIMARY KEY (ID);
+ALTER TABLE CERTIFICATION_AUTHORITIES MODIFY (ID NOT NULL ENABLE);
+
+CREATE OR REPLACE TRIGGER AC_TRIGGER
+	before insert on CERTIFICATION_AUTHORITIES
+	for each row 
+begin  
+	if inserting then 
+		if :NEW.ID is null then 
+			select CA_SEQUENCE.nextval into :NEW.ID from dual; 
+		end if; 
+	end if; 
+end;
+/
+
+ALTER TRIGGER AC_TRIGGER ENABLE;
+
+--------------------------------------------------------
+-- CRL
+--------------------------------------------------------
+
+DROP TABLE CRL cascade constraints;
+DROP SEQUENCE CRL_SEQUENCE;
+
+CREATE SEQUENCE  CRL_SEQUENCE  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE;
+
+CREATE TABLE CRL (
+	ID NUMBER, 
+	ID_CA NUMBER, 
+	NAME_CA VARCHAR2(250 BYTE), 
+	SERIAL_NUMBER VARCHAR2(250 BYTE), 
+	REVOCATION_DATE DATE
+);
+
+ALTER TABLE CRL ADD CONSTRAINT CRL_PK PRIMARY KEY (ID);
+ALTER TABLE CRL MODIFY (ID NOT NULL ENABLE);
+
+CREATE OR REPLACE TRIGGER CRL_TRIGGER
+	before insert on CRL
+	for each row 
+begin  
+	if inserting then 
+		if :NEW.ID is null then 
+			select CRL_SEQUENCE.nextval into :NEW.ID from dual; 
+		end if; 
+	end if; 
+end;
+/
+
+ALTER TRIGGER CRL_TRIGGER ENABLE;
+
+--------------------------------------------------------
+-- EMAIL_RECIVED_HEADER
+--------------------------------------------------------
+
+DROP TABLE EMAIL_RECIVED_HEADER cascade constraints;
+DROP SEQUENCE ERH_SEQUENCE;
+  
+CREATE SEQUENCE  ERH_SEQUENCE  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE;
+
+CREATE TABLE EMAIL_RECIVED_HEADER (
+	ID NUMBER, 
+	ID_ACCOUNT NUMBER, 
+	FROM_ADDRESS VARCHAR2(250 BYTE), 
+	SUBJECT VARCHAR2(250 BYTE), 
+	SENT_DATE DATE, 
+	UID_POP3 VARCHAR2(250 BYTE), 
+	UID_IMAP NUMBER, 
+	FOLDER VARCHAR2(250 BYTE)
+);
+
+ALTER TABLE EMAIL_RECIVED_HEADER ADD CONSTRAINT EMAIL_RECIVED_HEADER_PK PRIMARY KEY (ID);
+ALTER TABLE EMAIL_RECIVED_HEADER MODIFY (ID NOT NULL ENABLE);
+
+CREATE OR REPLACE TRIGGER ERH_TRIGGER
+	before insert on EMAIL_RECIVED_HEADER
+	for each row 
+begin  
+	if inserting then 
+		if :NEW.ID is null then 
+			select ERH_SEQUENCE.nextval into :NEW.ID from dual; 
+		end if; 
+	end if; 
+end;
+/
+
+ALTER TRIGGER ERH_TRIGGER ENABLE;
+
+--------------------------------------------------------
+-- EMAIL_RECIVED_CONTENT
+--------------------------------------------------------
+
+DROP TABLE EMAIL_RECIVED_CONTENT cascade constraints;
+DROP SEQUENCE ERC_SEQUENCE;
+
+CREATE SEQUENCE  ERC_SEQUENCE  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE;
+
+CREATE TABLE EMAIL_RECIVED_CONTENT (
+	ID NUMBER, 
+	ID_HEADER NUMBER, 
+	CONTENT BLOB, 
+	CONTENT_TYPE VARCHAR2(250 BYTE), 
+	CONTENT_ID VARCHAR2(250 BYTE), 
+	CONTENT_DISPOSITION VARCHAR2(250 BYTE), 
+	FILE_NAME VARCHAR2(250 BYTE)
+);
+
+ALTER TABLE EMAIL_RECIVED_CONTENT ADD CONSTRAINT EMAIL_RECIVED_CONTENT_PK PRIMARY KEY (ID);
+ALTER TABLE EMAIL_RECIVED_CONTENT MODIFY (ID NOT NULL ENABLE);
+
+CREATE OR REPLACE TRIGGER ERC_TRIGGER
+	before insert on EMAIL_RECIVED_CONTENT
+	for each row 
+begin  
+	if inserting then 
+		if :NEW.ID is null then 
+			select ERC_SEQUENCE.nextval into :NEW.ID from dual; 
+		end if; 
+	end if; 
+end;
+/
+
+ALTER TRIGGER ERC_TRIGGER ENABLE;
+
+--------------------------------------------------------
+-- INCOMING_MAIL_CONFIGURATION
+--------------------------------------------------------
+
+DROP TABLE INCOMING_MAIL_CONFIGURATION cascade constraints;
+DROP SEQUENCE IMC_SEQUENCE;
+
+CREATE SEQUENCE  IMC_SEQUENCE  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE;
+
+CREATE TABLE INCOMING_MAIL_CONFIGURATION (
+	ID NUMBER, 
+	NAME VARCHAR2(250 BYTE), 
+	USER_NAME VARCHAR2(250 BYTE), 
+	PASSWD VARCHAR2(250 BYTE), 
+	HOST VARCHAR2(250 BYTE), 
+	PORT VARCHAR2(10 BYTE), 
+	SERVER_SECURITY VARCHAR2(10 BYTE), 
+	EMAIL VARCHAR2(250 BYTE), 
+	PROTOCOL VARCHAR2(20 BYTE)
+);
+
+ALTER TABLE INCOMING_MAIL_CONFIGURATION ADD CONSTRAINT IMC_PK PRIMARY KEY (ID);
+ALTER TABLE INCOMING_MAIL_CONFIGURATION MODIFY (ID NOT NULL ENABLE);
+
+CREATE OR REPLACE TRIGGER IMC_TRIGGER
+	before insert on INCOMING_MAIL_CONFIGURATION
+	for each row 
+begin  
+	if inserting then 
+		if :NEW.ID is null then 
+			select IMC_SEQUENCE.nextval into :NEW.ID from dual; 
+		end if; 
+	end if; 
+end;
+/
+
+ALTER TRIGGER IMC_TRIGGER ENABLE;
+
+--------------------------------------------------------
+-- OUTGOING_MAIL_CONFIGURATION
+--------------------------------------------------------
+
+DROP TABLE OUTGOING_MAIL_CONFIGURATION cascade constraints;
+DROP SEQUENCE OMC_SEQUENCE;
+
+CREATE SEQUENCE  OMC_SEQUENCE  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE;
+
+CREATE TABLE OUTGOING_MAIL_CONFIGURATION (
+	ID NUMBER, 
+	NAME VARCHAR2(250 BYTE), 
+	USER_NAME VARCHAR2(250 BYTE), 
+	PASSWD VARCHAR2(250 BYTE), 
+	HOST VARCHAR2(250 BYTE), 
+	PORT VARCHAR2(10 BYTE), 
+	SERVER_SECURITY VARCHAR2(10 BYTE), 
+	EMAIL VARCHAR2(250 BYTE)
+);
+
+ALTER TABLE OUTGOING_MAIL_CONFIGURATION MODIFY (ID NOT NULL ENABLE);
+ALTER TABLE OUTGOING_MAIL_CONFIGURATION ADD CONSTRAINT OMC_PK PRIMARY KEY (ID);
+
+CREATE OR REPLACE TRIGGER OMC_TRIGGER
+	before insert on OUTGOING_MAIL_CONFIGURATION
+	for each row 
+begin  
+	if inserting then 
+		if :NEW.ID is null then 
+			select OMC_SEQUENCE.nextval into :NEW.ID from dual; 
+		end if; 
+	end if; 
+end;
+/
+
+ALTER TRIGGER OMC_TRIGGER ENABLE;
+
+--------------------------------------------------------
+-- Logos
+--------------------------------------------------------
+
+DROP TABLE LOGOS cascade constraints;
+DROP SEQUENCE LOGOS_SEQUENCE;
+
+CREATE SEQUENCE  LOGOS_SEQUENCE  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE;
+
+CREATE TABLE LOGOS (
+	ID NUMBER, 
+	NAME VARCHAR2(50 BYTE),  
+	LOGO BLOB,  
+	COMMENTS VARCHAR2(512 BYTE)
+);
+
+ALTER TABLE LOGOS ADD CONSTRAINT LOGOS_PK PRIMARY KEY (ID);
+ALTER TABLE LOGOS MODIFY (ID NOT NULL ENABLE);
+
+CREATE OR REPLACE TRIGGER LOGOS_TRIGGER
+	before insert on LOGOS
+	for each row 
+begin  
+	if inserting then 
+		if :NEW.ID is null then 
+			select LOGOS_SEQUENCE.nextval into :NEW.ID from dual; 
+		end if; 
+	end if; 
+end;
+/
+
+ALTER TRIGGER LOGOS_TRIGGER ENABLE;
+
+--------------------------------------------------------
+-- Templates for Acknowledgment of receipt
+--------------------------------------------------------
+
+DROP TABLE TEMPLATES cascade constraints;
+DROP SEQUENCE TEMPLATES_SEQUENCE;
+
+CREATE SEQUENCE  TEMPLATES_SEQUENCE  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE;
+
+CREATE TABLE TEMPLATES (
+	ID NUMBER, 
+	NAME VARCHAR2(50 BYTE),  
+	TEMPLATE BLOB,  
+	COMMENTS VARCHAR2(512 BYTE)
+);
+
+ALTER TABLE TEMPLATES ADD CONSTRAINT TEMPLATES_PK PRIMARY KEY (ID);
+ALTER TABLE TEMPLATES MODIFY (ID NOT NULL ENABLE);
+
+CREATE OR REPLACE TRIGGER TEMPLATES_TRIGGER
+	before insert on TEMPLATES
+	for each row 
+begin  
+	if inserting then 
+		if :NEW.ID is null then 
+			select TEMPLATES_SEQUENCE.nextval into :NEW.ID from dual; 
+		end if; 
+	end if; 
+end;
+/
+
+ALTER TRIGGER TEMPLATES_TRIGGER ENABLE;
+
+--------------------------------------------------------
+-- TSA
+--------------------------------------------------------
+
+DROP TABLE TSA cascade constraints;
+DROP SEQUENCE TSA_SEQUENCE;
+
+CREATE SEQUENCE  TSA_SEQUENCE  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE;
+
+CREATE TABLE TSA (
+	ID NUMBER, 
+	NAME VARCHAR2(50 BYTE),
+	METHOD VARCHAR2(50 BYTE),
+	URL VARCHAR2(250 BYTE),
+	USER_NAME VARCHAR2(50 BYTE),
+	PASSWORD VARCHAR2(50 BYTE),  
+	COMMENTS VARCHAR2(512 BYTE)
+);
+
+ALTER TABLE TSA ADD CONSTRAINT TSA_PK PRIMARY KEY (ID);
+ALTER TABLE TSA MODIFY (ID NOT NULL ENABLE);
+
+CREATE OR REPLACE TRIGGER TSA_TRIGGER
+	before insert on TSA
+	for each row 
+begin  
+	if inserting then 
+		if :NEW.ID is null then 
+			select TSA_SEQUENCE.nextval into :NEW.ID from dual; 
+		end if; 
+	end if; 
+end;
+/
+
+ALTER TRIGGER TSA_TRIGGER ENABLE;
+
+--------------------------------------------------------
+-- INSERTS
+--------------------------------------------------------
+
+Insert into CERTIFICATION_AUTHORITIES (ID,NAME,CANONICAL_NAME,NOT_BEFORE,NOT_AFTER,SERIAL_NUMBER,METHOD,OCSP_URL,COMMENTS) values ('1','DNIE 001','cn=ac dnie 001,ou=dnie,o=direccion general de la policia,c=es',to_date('27/02/06','DD/MM/RR'),to_date('26/02/21','DD/MM/RR'),'133091037856105669837673331152098874953','OCSP','http://ocsp.dnie.es/','Autoridad de Certificacion del DNIe 001.');
+Insert into CERTIFICATION_AUTHORITIES (ID,NAME,CANONICAL_NAME,NOT_BEFORE,NOT_AFTER,SERIAL_NUMBER,METHOD,OCSP_URL,COMMENTS) values ('2','DNIE 002','cn=ac dnie 002,ou=dnie,o=direccion general de la policia,c=es',to_date('01/03/06','DD/MM/RR'),to_date('26/02/21','DD/MM/RR'),'74708931903842678011198178002032388526','OCSP','http://ocsp.dnie.es/','Autoridad de Certificacion del DNIe 002.');
+Insert into CERTIFICATION_AUTHORITIES (ID,NAME,CANONICAL_NAME,NOT_BEFORE,NOT_AFTER,SERIAL_NUMBER,METHOD,OCSP_URL,COMMENTS) values ('3','DNIE 003','cn=ac dnie 003,ou=dnie,o=direccion general de la policia,c=es',to_date('01/03/06','DD/MM/RR'),to_date('26/02/21','DD/MM/RR'),'165203632196137237732773294447868922019','OCSP','http://ocsp.dnie.es/','Autoridad de Certificacion del DNIe 003.');
+Insert into CERTIFICATION_AUTHORITIES (ID,NAME,CANONICAL_NAME,NOT_BEFORE,NOT_AFTER,SERIAL_NUMBER,METHOD,OCSP_URL,COMMENTS) values ('4','FNMT','ou=fnmt clase 2 ca,o=fnmt,c=es',to_date('18/03/99','DD/MM/RR'),to_date('18/03/19','DD/MM/RR'),'921770777','CRL',null,'Fabrica Nacional de la Moneda y Timbre');
+
+Insert into INCOMING_MAIL_CONFIGURATION (ID,NAME,USER_NAME,PASSWD,HOST,PORT,SERVER_SECURITY,EMAIL,PROTOCOL) values ('1','Redmoon Gmail POP3','redmoon.granada@gmail.com','cajagranada2012','pop.gmail.com','995','ssl/tls','redmoon.granada@gmail.com','pop3');
+Insert into INCOMING_MAIL_CONFIGURATION (ID,NAME,USER_NAME,PASSWD,HOST,PORT,SERVER_SECURITY,EMAIL,PROTOCOL) values ('2','Redmoon Gmail IMAP','redmoon.granada@gmail.com','cajagranada2012','imap.gmail.com','993','ssl/tls','redmoon.granada@gmail.com','imap');
+
+Insert into OUTGOING_MAIL_CONFIGURATION (ID,NAME,USER_NAME,PASSWD,HOST,PORT,SERVER_SECURITY,EMAIL) values ('1','Redmoon Gmail STARTTLS','redmoon.granada@gmail.com','cajagranada2012','smtp.gmail.com','587','starttls','redmoon.granada@gmail.com');
+Insert into OUTGOING_MAIL_CONFIGURATION (ID,NAME,USER_NAME,PASSWD,HOST,PORT,SERVER_SECURITY,EMAIL) values ('2','Redmoon Gmail SSL','redmoon.granada@gmail.com','cajagranada2012','smtp.gmail.com','465','ssl/tls','redmoon.granada@gmail.com');
+
+commit;
